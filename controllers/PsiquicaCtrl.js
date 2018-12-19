@@ -153,8 +153,8 @@ module.exports = {
     async CloseRoom(req, res) {
         try {
             var result = await mySql.query(`update tbl_chat set estado = 0,
-            evaluacion = ${req.body.evaluacion}, comentario = '${req.body.comentario}',
-            tiempo='${req.body.tiempo}', fecha_fin = '${moment().format('YYYY-MM-DD HH:mm:ss')}'
+            evaluacion = ${req.body.evaluacion}, comentario = '${req.body.comentario}', 
+            fecha_fin = '${moment().format('YYYY-MM-DD HH:mm:ss')}'
             where token = '${req.body.room}'`)
         } catch (err) { throw new Error(err) }
 

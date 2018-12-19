@@ -11,4 +11,11 @@ router.post('/usuario/sendMessage', UsuarioCtrl.SendMessage);
 
 router.post('/usuario/getMessages', UsuarioCtrl.GetMessages);
 
+router.post('/usuario/UpdateRoom', UsuarioCtrl.UpdateRoom);
+
+router.post('/usuario/closeRoom', UsuarioCtrl.CloseRoom);
+
+router.post('/usuario/expireRoom', UsuarioCtrl.ExpireRoom);
+
+
 module.exports = router;

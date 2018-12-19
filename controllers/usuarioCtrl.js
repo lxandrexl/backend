@@ -1,5 +1,6 @@
 const HttpStatus = require('http-status-codes');
 const mySql = require('../config/connectionDb');
+const moment = require('moment');
 
 module.exports = {
     async GetPaquetes(req, res) {
@@ -92,6 +93,93 @@ module.exports = {
         } else {
             return res.status(HttpStatus.CONFLICT)
                 .json({ message: 'El chat privado no existe.' });
+        }
+    },
+
+    async UpdateRoom(req, res) {
+        const idCliente = req.body.cliente.id_usuario;
+        const tokenRoom = req.body.room;
+        const timeRoom = req.body.data.timeTotal;
+        const validatorTime = parseInt(req.body.data.paquetePsiquicaActual) - 1;
+        let secondsTmp = parseInt(req.body.data.secondsRoom);
+        let minutesTmp = parseInt(req.body.data.minutesRoom);
+
+        if (req.body.finish) {
+            if (validatorTime >= 0 && validatorTime >= minutesTmp) {
+                if (secondsTmp < 30) minutesTmp++;
+            }
+        }
+        try {
+            var result = await mySql.query(`update tbl_chat set tiempo = '${timeRoom}'
+            where token = '${tokenRoom}'`);
+        } catch (err) { throw new Error(err) }
+
+        if (result.affectedRows > 0) {
+            try {
+                var result = await mySql.query(`update tbl_usuarios set 
+                min_psiquica = '${minutesTmp}' where id_usuario = ${idCliente}`);
+            } catch (err) { throw new Error(err) }
+            console.log(minutesTmp);
+            return res.status(HttpStatus.OK)
+                .json({ message: 'Actualización realizada correctamente.' });
+        } else {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'Ocurrio un error al actualizar el tiempo del chat.' });
+        }
+
+
+    },
+
+    async CloseRoom(req, res) {
+        if (req.body.tiempo === 'expire_action') {
+            try {
+                var result = await mySql.query(`update tbl_chat set
+                evaluacion = ${req.body.evaluacion}, comentario = '${req.body.comentario}' 
+                where token = '${req.body.room}'`)
+            } catch (err) { throw new Error(err) }
+            if (result.affectedRows > 0) {
+                return res.status(HttpStatus.OK)
+                    .json({ message: 'Chat cerrado' });
+            } else {
+                return res.status(HttpStatus.CONFLICT)
+                    .json({ message: 'Ocurrio un error, al cerrar el chat' });
+            }
+        } else {
+            try {
+                var result = await mySql.query(`update tbl_chat set estado = 0,
+                evaluacion = ${req.body.evaluacion}, comentario = '${req.body.comentario}', 
+                tiempo = '${req.body.tiempo}', fecha_fin = '${moment().format('YYYY-MM-DD HH:mm:ss')}'
+                where token = '${req.body.room}'`)
+            } catch (err) { throw new Error(err) }
+
+            if (result.affectedRows > 0) {
+                try {
+                    await mySql.query(`UPDATE tbl_psiquicas set estado = 1 
+                    where id_psiquica = ${req.body.psiquica}`)
+                } catch (err) { throw new Error(err) }
+
+                return res.status(HttpStatus.OK)
+                    .json({ message: 'Chat cerrado' });
+            } else {
+                return res.status(HttpStatus.CONFLICT)
+                    .json({ message: 'Ocurrio un error, intentelo nuevamente' });
+            }
+        }
+    },
+
+    async ExpireRoom(req, res) {
+        try {
+            var result = await mySql.query(`update tbl_chat set estado = 0,
+            fecha_fin = '${moment().format('YYYY-MM-DD HH:mm:ss')}'
+            where token = '${req.body.room}'`)
+        } catch (err) { throw new Error(err) }
+
+        if (result.affectedRows > 0) {
+            return res.status(HttpStatus.OK)
+                .json({ message: 'El tiempo del chat a terminado.' });
+        } else {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'Ocurrio un error, al cerrar el chat' });
         }
     }
 }
