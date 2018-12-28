@@ -1,8 +1,50 @@
 const HttpStatus = require('http-status-codes');
 const mySql = require('../config/connectionDb');
+const userModel = require('../models/userModel');
 const moment = require('moment');
 
 module.exports = {
+    async GetUserProfile(req, res) {
+        const user = await userModel.GetUserProfile(req.body.id_usuario);
+        if (user.length > 0) {
+            return res.status(HttpStatus.OK)
+                .json({ message: 'Datos encontrados exitosamente.', data: user[0] });
+        } else {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'No existe el usuario.' });
+        }
+    },
+
+    async GetDetailsUser(req, res) {
+        try {
+            var result = await mySql.query(`
+            SELECT * FROM tbl_zodiaco where nombre = '${req.body.name}'`)
+        } catch (err) { throw new Error(err) }
+
+        if (result.length > 0) {
+            return res.status(HttpStatus.OK)
+                .json({ message: 'Detalles encontrados exitosamente.', data: result });
+        } else {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'El signo no existe.' });
+        }
+    },
+
+    async GetZodiaco(req, res) {
+        try {
+            var result = await mySql.query(`
+            SELECT * FROM tbl_zodiaco`)
+        } catch (err) { throw new Error(err) }
+
+        if (result.length > 0) {
+            return res.status(HttpStatus.OK)
+                .json({ message: 'Signos encontrados exitosamente.', data: result });
+        } else {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'El usuario no existe.' });
+        }
+    },
+
     async GetPaquetes(req, res) {
         try {
             var result = await mySql.query(`
@@ -13,7 +55,7 @@ module.exports = {
         if (result.length > 0) {
             const data = result[0];
 
-            return res.status(HttpStatus.CREATED)
+            return res.status(HttpStatus.OK)
                 .json({ message: 'Paquetes encontrados exitosamente.', data });
         } else {
             return res.status(HttpStatus.CONFLICT)
@@ -119,7 +161,6 @@ module.exports = {
                 var result = await mySql.query(`update tbl_usuarios set 
                 min_psiquica = '${minutesTmp}' where id_usuario = ${idCliente}`);
             } catch (err) { throw new Error(err) }
-            console.log(minutesTmp);
             return res.status(HttpStatus.OK)
                 .json({ message: 'Actualización realizada correctamente.' });
         } else {
@@ -180,6 +221,52 @@ module.exports = {
         } else {
             return res.status(HttpStatus.CONFLICT)
                 .json({ message: 'Ocurrio un error, al cerrar el chat' });
+        }
+    },
+
+    async UpdateProfile(req, res) {
+        const data = req.body;
+        if (data.image && data.extension) {
+            await userModel.UpdatePhotoProfile(data.user, data.image, data.extension);
+        }
+        const result = await userModel
+            .UpdateProfile(data.user, data.name, data.apPaterno, data.apMaterno);
+
+        if (result.affectedRows > 0) {
+            return res.status(HttpStatus.OK)
+                .json({ message: 'Datos actualizados correctamente.' });
+        } else {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'Ocurrio un error, intentelo nuevamente.' });
+        }
+    },
+
+    async GetCitas(req, res) {
+        const result = await userModel.GetCitas(req.body._id);
+
+        if (result.length > 0) {
+            return res.status(HttpStatus.OK)
+                .json({ message: 'Usted cuenta con citas para usar.', data: result[0] });
+        } else {
+            return res.status(HttpStatus.OK)
+                .json({ message: 'Ocurrio un error, no tiene citas disponibles.', data: [] });
+        }
+    },
+
+    async CitasConf(req, res) {
+        const result = await userModel.CitasConfig();
+        console.log(result);
+
+        if (result['horarios'].length > 0) {
+            return res.status(HttpStatus.OK)
+                .json({
+                    message: 'Configuracion encontrada correctamente.',
+                    horarios: result['horarios'],
+                    citas: result['citas']
+                });
+        } else {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'Ocurrio un error, no se pudo configurar el calendario.' });
         }
     }
 }

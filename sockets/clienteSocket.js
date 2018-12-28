@@ -6,5 +6,8 @@ module.exports = function(io) {
         socket.on('entrar_chat_cliente', data => {
             socket.join(data.roomToken);
         });
+        socket.on('refreshPage', data => {
+            io.emit('refresh', data);
+        })
     });
 };

@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const dbConfig = require('../config/secretKeys');
-const mySql = require('../config/connectionDb');
 const authModel = require('../models/authModel');
 
 module.exports = {

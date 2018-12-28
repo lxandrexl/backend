@@ -1,8 +1,8 @@
 module.exports = {
-  hostDb: '127.0.0.1',
-  userDb: 'root',
-  passDb: '',
-  nameDb: 'bd_chat_new',
-  portServer: '8000',
-  josieToken: 'mytokenjosieweb'
+    hostDb: '99.99.99.243',
+    userDb: 'root',
+    passDb: '1ndr1',
+    nameDb: 'bd_chat_new',
+    portServer: '8000',
+    josieToken: 'mytokenjosieweb'
 };

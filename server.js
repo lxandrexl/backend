@@ -7,6 +7,7 @@ const logger = require('morgan');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
+const filePath = express.static('files');
 
 // Dependencias
 const auth = require('./routes/authRoute');
@@ -25,7 +26,9 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 app.use(logger('dev'));
 
+
 // Rutas
+app.use('/files', filePath);
 app.use('/api/josiechat/v1', auth);
 app.use('/api/josiechat/v1', usuario);
 app.use('/api/josiechat/v1', psiquica);
