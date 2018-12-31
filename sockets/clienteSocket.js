@@ -8,6 +8,9 @@ module.exports = function(io) {
         });
         socket.on('refreshPage', data => {
             io.emit('refresh', data);
+        });
+        socket.on('calendarJosie', data => {
+            io.emit('refreshCalendar', data);
         })
     });
 };
