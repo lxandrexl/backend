@@ -1,6 +1,8 @@
 const HttpStatus = require('http-status-codes');
 const bcrypt = require('bcryptjs');
 const psiquicaModel = require('../models/psiquicaModel');
+const jwt = require('jsonwebtoken');
+const dbConfig = require('../config/secretKeys');
 
 module.exports = {
     async GetPsiquicas(req, res) {
@@ -48,14 +50,46 @@ module.exports = {
         }
     },
 
+    async MakeRoomJosie(req, res) {
+        const Cliente = req.body.cliente;
+        const Psiquica = req.body.psiquica;
+        const Cita = req.body.cita;
+        if (!Cliente && !Psiquica) {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'Ocurrio un error, vuelva a iniciar sesión.' });
+        }
+
+        const token = jwt.sign(Cita, dbConfig.josieToken, {
+            expiresIn: '1h'
+        });
+
+        const result = await psiquicaModel.MakeRoom(
+            Cliente.id_usuario,
+            Psiquica.id_psiquica,
+            token
+        );
+
+        if (result.insertId) {
+            return res.status(HttpStatus.OK).json({
+                message: 'Chat creado correctamente.',
+                chatId: result.insertId,
+                chatToken: token
+            });
+        } else {
+            return res
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .json({ message: 'Ocurrio un error, al crear el chat privado.' });
+        }
+
+    },
+
     async MakeRoom(req, res) {
         const Cliente = req.body.cliente;
         const Psiquica = req.body.psiquica;
         const chatToken = new Date();
 
         if (!Cliente && !Psiquica) {
-            return res
-                .status(HttpStatus.CONFLICT)
+            return res.status(HttpStatus.CONFLICT)
                 .json({ message: 'Ocurrio un error, vuelva a iniciar sesión.' });
         }
 

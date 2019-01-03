@@ -19,4 +19,6 @@ router.post('/psiquica/closeRoom', PsiquicaCtrl.CloseRoom);
 
 router.get('/psiquica/getJosieData', PsiquicaCtrl.GetJosieData);
 
+router.post('/psiquica/makeRoomJosie', PsiquicaCtrl.MakeRoomJosie);
+
 module.exports = router;

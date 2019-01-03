@@ -255,8 +255,6 @@ module.exports = {
 
     async CitasConf(req, res) {
         const result = await userModel.CitasConfig();
-        console.log(result);
-
         if (result['horarios'].length > 0) {
             return res.status(HttpStatus.OK)
                 .json({
@@ -268,5 +266,52 @@ module.exports = {
             return res.status(HttpStatus.CONFLICT)
                 .json({ message: 'Ocurrio un error, no se pudo configurar el calendario.' });
         }
+    },
+
+    async SetCita(req, res) {
+        const result = await userModel.GuardarCita(req.body._id, req.body.hour, req.body.date);
+        if (result.affectedRows > 0) {
+            await userModel.UpdateCita(req.body._id, req.body.citas);
+            return res.status(HttpStatus.OK)
+                .json({ message: 'Cita reservada exitosamente.' });
+        } else {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'Ocurrio un error, no se pudo guardar la cita. Intentelo nuevamente' });
+        }
+    },
+
+    async GetCitasById(req, res) {
+        const result = await userModel.GetCitasById(req.body._id);
+        if (result.length > 0) {
+            return res.status(HttpStatus.OK).json({
+                message: 'Citas encontradas correctamente.',
+                citas: result
+            });
+        } else {
+            return res.status(HttpStatus.OK).json({
+                message: 'No tiene citas pendientes.',
+                citas: []
+            });
+        }
+    },
+
+    async CloseRoomJosie(req, res) {
+        const token = req.body.token;
+        let data = token.split('.')[1];
+        let buff = new Buffer(data, 'base64');
+        let cita = JSON.parse(buff.toString('ascii'));
+
+        const result = await userModel.CloseRoomJosie(cita);
+
+        if (result.affectedRows > 0) {
+            return res.status(HttpStatus.OK).json({
+                message: 'Cita cerrada exitosamente.'
+            });
+        } else {
+            return res.status(HttpStatus.CONFLIT).json({
+                message: 'No se pudo cerrar la cita, error en el servidor.'
+            });
+        }
+
     }
 }

@@ -29,5 +29,11 @@ router.post('/usuario/updateUser', UsuarioCtrl.UpdateProfile);
 
 router.post('/usuario/getCitas', UsuarioCtrl.GetCitas);
 
+router.post('/usuario/setCita', UsuarioCtrl.SetCita);
+
+router.post('/usuario/getCitasPendientes', UsuarioCtrl.GetCitasById);
+
+router.post('/usuario/closeCita', UsuarioCtrl.CloseRoomJosie);
+
 
 module.exports = router;

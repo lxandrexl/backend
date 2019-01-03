@@ -11,6 +11,12 @@ module.exports = function(io) {
         });
         socket.on('calendarJosie', data => {
             io.emit('refreshCalendar', data);
+        });
+        socket.on('cita_reservada', data => {
+            io.emit('reservo_cita', data);
+        });
+        socket.on('llamar_josie', data => {
+            io.emit('usuario_cita', data);
         })
     });
 };

@@ -12,5 +12,14 @@ module.exports = function(io) {
         socket.on('entrar_chat_psiquica', data => {
             socket.join(data.roomToken);
         });
+        socket.on('josie_online', data => {
+            io.emit('listen_josie', data);
+        });
+        socket.on('cancelar_llamada_josie', data => {
+            io.emit('listen_josie_cancel', data);
+        });
+        socket.on('crear_chat_josie', data => {
+            io.emit('llamada_aceptada_josie', data);
+        });
     });
 };

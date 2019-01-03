@@ -49,5 +49,38 @@ module.exports = {
             result['citas'] = await mySql.query('select * from tbl_citas where estado = 1 or estado = 2');
         } catch (err) { throw new Error(err) }
         return result;
+    },
+
+    async GuardarCita(_id, hora, fecha) {
+        try {
+            var result = await mySql.query(`insert into tbl_citas(id_usuario, tiempo, hora, fecha, fecha_creacion) 
+            VALUES(${_id}, 30, '${hora}', '${fecha}', '${moment().format('YYYY-MM-DD HH:mm:ss')}')`)
+        } catch (err) { throw new Error(err) }
+        return result;
+    },
+
+    async UpdateCita(_id, cita) {
+        let citaUpdt = parseInt(cita) - 1;
+        try {
+            var result = await mySql.query(`update tbl_usuarios set citas_josie = '${citaUpdt}'
+            where id_usuario = ${_id}`)
+        } catch (err) { throw new Error(err) }
+        return result;
+    },
+
+    async GetCitasById(_id) {
+        try {
+            var result = await mySql.query(`select * from tbl_citas where id_usuario = ${_id}
+            and estado != 0`);
+        } catch (err) { throw new Error(err) }
+        return result;
+    },
+
+    async CloseRoomJosie(cita) {
+        try {
+            var result = await mySql.query(`update tbl_citas set estado = 0
+            where id_cita = ${cita.id_cita}`)
+        } catch (err) { throw new Error(err) }
+        return result;
     }
 }
