@@ -17,6 +17,9 @@ module.exports = function(io) {
         });
         socket.on('llamar_josie', data => {
             io.emit('usuario_cita', data);
+        });
+        socket.on('match_time_room', data => {
+            io.emit('match_time', data);
         })
     });
 };
