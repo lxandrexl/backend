@@ -11,6 +11,14 @@ module.exports = {
         return result;
     },
 
+    async GetUserProfileByToken(token) {
+        try {
+            var result = await mySql.query(`
+            SELECT * FROM tbl_usuarios where token = ${token}`)
+        } catch (err) { throw new Error(err) }
+        return result;
+    },
+
     async UpdatePhotoProfile(_id, file, extension) {
         const imgName = `${ moment().format('YYYYMMDDHHmmss')}.${extension}`;
         const base64Data = file.replace(/^data:image\/png;base64,/, "");

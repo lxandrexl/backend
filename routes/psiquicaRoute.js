@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const PsiquicaCtrl = require('../controllers/PsiquicaCtrl');
+const PsiquicaCtrl = require('../controllers/psiquicaCtrl');
 
 router.get('/psiquica/all', PsiquicaCtrl.GetPsiquicas);
 
