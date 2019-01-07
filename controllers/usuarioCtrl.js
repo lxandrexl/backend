@@ -15,6 +15,17 @@ module.exports = {
         }
     },
 
+    async GetUserProfileByToken(req, res) {
+        const user = await userModel.GetUserProfileByToken(req.body.token);
+        if (user.length > 0) {
+            return res.status(HttpStatus.OK)
+                .json({ message: 'Datos encontrados exitosamente.', data: user[0] });
+        } else {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'No existe el usuario.' });
+        }
+    },
+
     async GetDetailsUser(req, res) {
         try {
             var result = await mySql.query(`

@@ -9,6 +9,8 @@ router.get('/usuario/citasConf', UsuarioCtrl.CitasConf);
 
 router.post('/usuario/profile', UsuarioCtrl.GetUserProfile);
 
+router.post('/usuario/profiletoken', UsuarioCtrl.GetUserProfileByToken);
+
 router.post('/usuario/details', UsuarioCtrl.GetDetailsUser);
 
 router.post('/usuario/paquetes', UsuarioCtrl.GetPaquetes);

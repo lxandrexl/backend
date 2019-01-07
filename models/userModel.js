@@ -14,7 +14,7 @@ module.exports = {
     async GetUserProfileByToken(token) {
         try {
             var result = await mySql.query(`
-            SELECT * FROM tbl_usuarios where token = ${token}`)
+            SELECT * FROM tbl_usuarios where token = '${token}'`)
         } catch (err) { throw new Error(err) }
         return result;
     },
