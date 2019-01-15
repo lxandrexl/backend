@@ -46,7 +46,7 @@ module.exports = {
     async verifyPsiquica(username) {
         try {
             var result = await mySql.query(`SELECT * FROM tbl_psiquicas 
-            where usuario='${username.toUpperCase()}' and deleted=0`)
+            where email='${username.toUpperCase()}' and deleted=0`)
         } catch (err) { throw new Error(err) }
 
         return result;

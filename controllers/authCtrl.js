@@ -17,9 +17,9 @@ module.exports = {
                 .required(),
             apMaterno: Joi.string()
                 .required(),
-            sexo: Joi.string()
-                .required(),
             fechaNac: Joi.string()
+                .required(),
+            sexo: Joi.string()
                 .required(),
             telefono: Joi.string()
                 .required(),
@@ -48,7 +48,7 @@ module.exports = {
                 .json({ message: 'Este email ya existe, intente con otro.' });
         }
 
-        return bcrypt.hash(value.password, 10, async(err, hash) => {
+        return bcrypt.hash(value.password, 10, async (err, hash) => {
             if (err) {
                 return res.status(HttpStatus.BAD_REQUEST)
                     .json({ message: 'Error encriptando la contraseña, intente de nuevo.' });
@@ -80,7 +80,6 @@ module.exports = {
     },
 
     // CLIENTE LOGIN
-
     async LoginUser(req, res) {
         if (!req.body.email || !req.body.password) {
             return res
@@ -115,7 +114,6 @@ module.exports = {
     },
 
     // PSIQUICA LOGIN
-
     async LoginPsiquica(req, res) {
         if (!req.body.username || !req.body.password) {
             return res
@@ -147,5 +145,59 @@ module.exports = {
         }
 
 
+    },
+
+    // ALTERNATIVE 
+    async LoginGeneral(req, res) {
+        if (!req.body.email || !req.body.password) {
+            return res
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .json({ message: 'Error, complete todo los campos por favor.' });
+        }
+
+        let rs = await authModel.verifyUser(req.body.email);
+
+        if (rs.length <= 0) {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'El usuario no existe.' });
+        }
+
+        const Type_user = rs[0].tipo_usuario;
+
+        if (Type_user == 0) {
+            let result = await authModel.verifyUser(req.body.email);
+            const Usuario = result[0];
+            Usuario.token = '';
+            return bcrypt.compare(req.body.password, Usuario.password).then(result => {
+                if (!result) {
+                    return res
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .json({ message: 'Contraseña incorrecta, intentelo de nuevo.' });
+                }
+                const token = jwt.sign({ data: Usuario }, dbConfig.josieToken, {
+                    expiresIn: '5h'
+                });
+                res.cookie('auth', token);
+                return res
+                    .status(HttpStatus.OK)
+                    .json({ message: 'Verificación exitosa.', Usuario, token, type: 0 });
+            });
+        } else if (Type_user == 1) {
+            let result = await authModel.verifyPsiquica(req.body.email);
+            const Psiquica = result[0];
+            await authModel.updateStatus(Psiquica.usuario);
+
+            if (req.body.password === Psiquica.password) {
+                const token = jwt.sign({ data: Psiquica }, dbConfig.josieToken, {
+                    expiresIn: '5h'
+                });
+                res.cookie('auth', token);
+                return res.status(HttpStatus.OK)
+                    .json({ message: 'Verificación exitosa.', Psiquica, token, type: 1 });
+            } else {
+                return res.status(HttpStatus.CONFLICT)
+                    .json({ message: 'Contraseña incorrecta, intentelo de nuevo.' });
+            }
+        }
     }
 }
