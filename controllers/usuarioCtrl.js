@@ -56,6 +56,21 @@ module.exports = {
         }
     },
 
+    async GetVideos(req, res) {
+        try {
+            var result = await mySql.query(`
+            SELECT * FROM tbl_videos`)
+        } catch (err) { throw new Error(err) }
+
+        if (result.length > 0) {
+            return res.status(HttpStatus.OK)
+                .json({ message: 'Videos encontrados exitosamente.', data: result });
+        } else {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'El video no existe.' });
+        }
+    },
+
     async GetPaquetes(req, res) {
         try {
             var result = await mySql.query(`

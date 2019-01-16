@@ -5,6 +5,8 @@ const UsuarioCtrl = require('../controllers/usuarioCtrl');
 
 router.get('/usuario/zodiaco', UsuarioCtrl.GetZodiaco);
 
+router.get('/usuario/videos', UsuarioCtrl.GetVideos);
+
 router.get('/usuario/citasConf', UsuarioCtrl.CitasConf);
 
 router.post('/usuario/profile', UsuarioCtrl.GetUserProfile);
