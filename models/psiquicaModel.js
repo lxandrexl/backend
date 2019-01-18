@@ -15,7 +15,7 @@ module.exports = {
     },
 
     async GetComentarios(_id) {
-        try{
+        try {
             var result = await mySql.query(`
                 SELECT c.id_chat, c.id_usuario as chatusu, c.evaluacion, c.comentario, c.id_psiquica,
                 u.id_usuario, u.nombre, u.apellido_paterno from tbl_chat c
@@ -120,6 +120,24 @@ module.exports = {
         } catch (err) {
             throw new Error(err);
         }
+        return result;
+    },
+
+    async VerifyRoom(room) {
+        try {
+            var result = await mySql.query(`select * from tbl_chat 
+            where token = '${room}'`)
+        } catch (err) { throw new Error(err) }
+        return result;
+    },
+
+    async SaveMessage(id_chat, sender, message) {
+        try {
+            var result = await mySql.query(`insert into tbl_conversacion
+            (id_chat, emisor, mensaje) VALUES (
+            ${id_chat}, '${sender}', '${message}'
+            )`)
+        } catch (err) { throw new Error(err) }
         return result;
     }
 };

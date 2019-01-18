@@ -23,4 +23,6 @@ router.post('/psiquica/makeRoomJosie', PsiquicaCtrl.MakeRoomJosie);
 
 router.post('/psiquica/getComentarios', PsiquicaCtrl.GetComentarios);
 
+router.post('/psiquica/audioChat', PsiquicaCtrl.GenerateAudio);
+
 module.exports = router;

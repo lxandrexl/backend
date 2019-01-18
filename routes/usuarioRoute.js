@@ -41,5 +41,6 @@ router.post('/usuario/closeCita', UsuarioCtrl.CloseRoomJosie);
 
 router.post('/usuario/historialcompras', UsuarioCtrl.HistorialCompras);
 
+router.post('/usuario/audioChat', UsuarioCtrl.GenerateAudio);
 
 module.exports = router;

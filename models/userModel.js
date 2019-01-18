@@ -98,5 +98,23 @@ module.exports = {
             where id_cita = ${cita.id_cita}`)
         } catch (err) { throw new Error(err) }
         return result;
+    },
+
+    async VerifyRoom(room) {
+        try {
+            var result = await mySql.query(`select * from tbl_chat 
+            where token = '${room}'`)
+        } catch (err) { throw new Error(err) }
+        return result;
+    },
+
+    async SaveMessage(id_chat, sender, message) {
+        try {
+            var result = await mySql.query(`insert into tbl_conversacion
+            (id_chat, emisor, mensaje) VALUES (
+            ${id_chat}, '${sender}', '${message}'
+            )`)
+        } catch (err) { throw new Error(err) }
+        return result;
     }
 }

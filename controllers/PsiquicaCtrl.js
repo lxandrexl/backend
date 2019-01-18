@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const psiquicaModel = require('../models/psiquicaModel');
 const jwt = require('jsonwebtoken');
 const dbConfig = require('../config/secretKeys');
+const moment = require('moment');
+const fs = require('fs');
 
 module.exports = {
     async GetPsiquicas(req, res) {
@@ -212,5 +214,29 @@ module.exports = {
                 .status(HttpStatus.CONFLICT)
                 .json({ message: 'Ocurrio un error, intentelo nuevamente' });
         }
+    },
+
+    async GenerateAudio(req, res) {
+        const filename = `${req.body.usuario}x${req.body.psiquica}x${moment().format('DDMMYYYYhmmss')}`;
+        const buffer = new Buffer(req.body.audio, 'base64');
+        fs.writeFile(`files/audios/${filename}.ogg`, buffer, async(err) => {
+            if (err) {
+                return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'No se pudo crear el audio.', data: err })
+            } else {
+                const rs = await psiquicaModel.VerifyRoom(req.body.room);
+                if (rs.length > 0) {
+                    const result = await psiquicaModel.SaveMessage(rs[0].id_chat, 'p', `${filename}.ogg`);
+                    if (result.affectedRows > 0) {
+                        return res.status(HttpStatus.OK).json({ message: 'Audio enviado con exito.' });
+                    } else {
+                        return res.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .json({ message: 'Ocurrio un error al enviar su mensaje.' });
+                    }
+                } else {
+                    return res.status(HttpStatus.CONFLICT)
+                        .json({ message: 'El chat privado no existe.' });
+                }
+            }
+        });
     }
 };

@@ -2,6 +2,7 @@ const HttpStatus = require('http-status-codes');
 const mySql = require('../config/connectionDb');
 const userModel = require('../models/userModel');
 const moment = require('moment');
+const fs = require('fs');
 
 module.exports = {
     async UpdateProfile(req, res) {
@@ -23,8 +24,8 @@ module.exports = {
 
     async HistorialCompras(req, res) {
         const compras = await userModel.GetHistorialCompras(req.body.email);
-        if(compras.length > 0) {
-             return res.status(HttpStatus.OK)
+        if (compras.length > 0) {
+            return res.status(HttpStatus.OK)
                 .json({ message: 'Compras encontradas.', data: compras });
         } else {
             return res.status(HttpStatus.OK)
@@ -139,18 +140,10 @@ module.exports = {
     },
 
     async SendMessage(req, res) {
-        try {
-            var result = await mySql.query(`select * from tbl_chat 
-            where token = '${req.body.room}'`)
-        } catch (err) { throw new Error(err) }
+        const rs = await userModel.VerifyRoom(req.body.room);
 
-        if (result.length > 0) {
-            try {
-                var result = await mySql.query(`insert into tbl_conversacion
-                (id_chat, emisor, mensaje) VALUES (
-                ${result[0].id_chat}, '${req.body.sender}', '${req.body.message}'
-                )`)
-            } catch (err) { throw new Error(err) }
+        if (rs.length > 0) {
+            const result = await userModel.SaveMessage(rs[0].id_chat, req.body.sender, req.body.message);
 
             if (result.affectedRows > 0) {
                 return res.status(HttpStatus.OK).json({ message: 'Enviado con exito.' });
@@ -349,6 +342,29 @@ module.exports = {
                 message: 'No se pudo cerrar la cita, error en el servidor.'
             });
         }
+    },
 
+    async GenerateAudio(req, res) {
+        const filename = `${req.body.usuario}x${req.body.psiquica}x${moment().format('DDMMYYYYhmmss')}`;
+        const buffer = new Buffer(req.body.audio, 'base64');
+        fs.writeFile(`files/audios/${filename}.ogg`, buffer, async(err) => {
+            if (err) {
+                return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'No se pudo crear el audio.', data: err })
+            } else {
+                const rs = await userModel.VerifyRoom(req.body.room);
+                if (rs.length > 0) {
+                    const result = await userModel.SaveMessage(rs[0].id_chat, 'c', `${filename}.ogg`);
+                    if (result.affectedRows > 0) {
+                        return res.status(HttpStatus.OK).json({ message: 'Audio enviado con exito.' });
+                    } else {
+                        return res.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .json({ message: 'Ocurrio un error al enviar su mensaje.' });
+                    }
+                } else {
+                    return res.status(HttpStatus.CONFLICT)
+                        .json({ message: 'El chat privado no existe.' });
+                }
+            }
+        });
     }
 }
