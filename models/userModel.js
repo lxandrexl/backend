@@ -11,6 +11,14 @@ module.exports = {
         return result;
     },
 
+    async GetHistorialCompras(email) {
+        try {
+            var result = await mySql.query(`
+            SELECT * FROM tbl_pagos where email_comprador = '${email}'`)
+        } catch (err) { throw new Error(err) }
+        return result;
+    },
+
     async GetUserProfileByToken(token) {
         try {
             var result = await mySql.query(`

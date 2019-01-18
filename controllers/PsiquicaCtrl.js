@@ -20,6 +20,16 @@ module.exports = {
         }
     },
 
+    async GetComentarios(req, res) {
+        const comentarios = await psiquicaModel.GetComentarios(req.body._id);
+
+        if (comentarios.length > 0) {
+            return res.status(HttpStatus.OK).json({ message: 'Comentarios encontrados.', data: comentarios });
+        } else {
+            return res.status(HttpStatus.OK).json({ message: 'No ahi comentarios', data: [] });
+        }
+    },
+
     async CloseSession(req, res) {
         const result = await psiquicaModel.CloseSession(req.body.id_psiquica);
 

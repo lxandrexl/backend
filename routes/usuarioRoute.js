@@ -39,5 +39,7 @@ router.post('/usuario/getCitasPendientes', UsuarioCtrl.GetCitasById);
 
 router.post('/usuario/closeCita', UsuarioCtrl.CloseRoomJosie);
 
+router.post('/usuario/historialcompras', UsuarioCtrl.HistorialCompras);
+
 
 module.exports = router;

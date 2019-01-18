@@ -4,6 +4,34 @@ const userModel = require('../models/userModel');
 const moment = require('moment');
 
 module.exports = {
+    async UpdateProfile(req, res) {
+        const data = req.body;
+        //if (data.image && data.extension) {
+        //    await userModel.UpdatePhotoProfile(data.user, data.image, data.extension);
+        //}
+        const result = await userModel
+            .UpdateProfile(data.user, data.name, data.apPaterno, data.apMaterno);
+
+        if (result.affectedRows > 0) {
+            return res.status(HttpStatus.OK)
+                .json({ message: 'Datos actualizados correctamente.' });
+        } else {
+            return res.status(HttpStatus.CONFLICT)
+                .json({ message: 'Ocurrio un error, intentelo nuevamente.' });
+        }
+    },
+
+    async HistorialCompras(req, res) {
+        const compras = await userModel.GetHistorialCompras(req.body.email);
+        if(compras.length > 0) {
+             return res.status(HttpStatus.OK)
+                .json({ message: 'Compras encontradas.', data: compras });
+        } else {
+            return res.status(HttpStatus.OK)
+                .json({ message: 'No tiene compras.', data: [] });
+        }
+    },
+
     async GetUserProfile(req, res) {
         const user = await userModel.GetUserProfile(req.body.id_usuario);
         if (user.length > 0) {
@@ -247,23 +275,6 @@ module.exports = {
         } else {
             return res.status(HttpStatus.CONFLICT)
                 .json({ message: 'Ocurrio un error, al cerrar el chat' });
-        }
-    },
-
-    async UpdateProfile(req, res) {
-        const data = req.body;
-        if (data.image && data.extension) {
-            await userModel.UpdatePhotoProfile(data.user, data.image, data.extension);
-        }
-        const result = await userModel
-            .UpdateProfile(data.user, data.name, data.apPaterno, data.apMaterno);
-
-        if (result.affectedRows > 0) {
-            return res.status(HttpStatus.OK)
-                .json({ message: 'Datos actualizados correctamente.' });
-        } else {
-            return res.status(HttpStatus.CONFLICT)
-                .json({ message: 'Ocurrio un error, intentelo nuevamente.' });
         }
     },
 

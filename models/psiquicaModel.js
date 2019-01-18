@@ -14,6 +14,19 @@ module.exports = {
         return result;
     },
 
+    async GetComentarios(_id) {
+        try{
+            var result = await mySql.query(`
+                SELECT c.id_chat, c.id_usuario as chatusu, c.evaluacion, c.comentario, c.id_psiquica,
+                u.id_usuario, u.nombre, u.apellido_paterno from tbl_chat c
+                inner join tbl_usuarios u on c.id_usuario = u.id_usuario
+                where c.id_psiquica = ${_id} and evaluacion > 1 and comentario != '' order by fecha_fin desc LIMIT 10 
+            `)
+        } catch (err) { throw new Error(err); }
+
+        return result;
+    },
+
     async GetPsiquica(_id) {
         try {
             var result = await mySql.query(`SELECT id_psiquica, estado, 
